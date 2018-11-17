@@ -2,10 +2,11 @@
  * File:	Process.java
  * Course: 	Operating Systems
  * Code: 	1DV512
- * Author: 	Suejb Memeti
+ * Author: 	Suejb Memeti & Elise Anjel
  * Date: 	November, 2018
  */
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -20,27 +21,61 @@ public class FCFS{
 	}
 
 	public void run() {
-		int currentTime;
-		
 		//Sorts the list on Arrival Time.
 		sortProcessOnAt();
 		
-		currentTime = 0;
-		for (Process p : processes) {
-			if (p.getArrivalTime() > currentTime)
-				currentTime = p.getArrivalTime();
+		//FCFS simulation
+		int listIndex = 0; //Used to keep track of incoming processes, SIMULATION ONLY
+		ArrayDeque<Process> queue = new ArrayDeque<Process>();	//Process queue for incoming processes
+		int cpuTime = 0;
+		boolean running = true;
+		while (running) {
 			
-			currentTime += p.getBurstTime();
+			//Simulates incoming processes into the queue. This part is for simulation only.
+			int nextProcessArrivalTime = processes.get(listIndex).arrivalTime;
+			if (cpuTime >= nextProcessArrivalTime) {
+				queue.add(processes.get(listIndex));
+				listIndex++;
+			}
 			
-			//Calculates Sets CT, TAT and WT
-			p.setCompletedTime(currentTime);
-			p.setTurnaroundTime(p.getCompletedTime() - p.getArrivalTime());
-			p.setWaitingTime(p.getTurnaroundTime() - p.getBurstTime());
+			//Check queue for incoming processes. Services first process if queue is not empty.
+			if (!queue.isEmpty()) {
+				int at, bt, ct, tat, wt;
+				Process p = queue.remove();
+				
+				at = p.getArrivalTime();
+	
+				//Simulates executing a process
+				bt = runProcess(p); //Runs process, saves it's run time as burst time.
+				cpuTime += bt;	//Simulates the CPU having run the process.
+				
+				//Calculates and sets times on process
+				ct = cpuTime;
+				tat = ct - at;
+				wt = tat-bt;
+				p.setCompletedTime(ct);
+				p.setTurnaroundTime(tat);
+				p.setWaitingTime(wt);
+			}
+			
+			//If no process is in the queue.
+			else {
+				cpuTime++;
+			}
+			
+			//Ends the simulation when there are no more simulated incoming processes
+			if (listIndex == processes.size() && cpuTime > processes.get(listIndex-1).getArrivalTime()) {
+				running = false;
+			}
 		}
-		
 		
 		printGanttChart();
 		printTable();
+	}
+	
+	//Simulates running a process. Returns the process burst time for simulation purposes only.
+	private int runProcess(Process p) {
+		return p.getBurstTime();
 	}
 
 	//Prints the table
