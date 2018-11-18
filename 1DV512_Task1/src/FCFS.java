@@ -46,8 +46,11 @@ public class FCFS{
 				at = p.getArrivalTime();
 	
 				//Simulates executing a process
-				bt = runProcess(p); //Runs process, saves it's run time as burst time.
-				cpuTime += bt;	//Simulates the CPU having run the process.
+				bt = 0;
+				for (int i = 0; i < p.getBurstTime(); i++) {
+					cpuTime++;
+					bt++;
+				}
 				
 				//Calculates and sets times on process
 				ct = cpuTime;
@@ -69,14 +72,11 @@ public class FCFS{
 			}
 		}
 		
+		//Prints the Gantt chart and the table
 		printGanttChart();
 		printTable();
 	}
 	
-	//Simulates running a process. Returns the process burst time for simulation purposes only.
-	private int runProcess(Process p) {
-		return p.getBurstTime();
-	}
 
 	//Prints the table
 	public void printTable() {
